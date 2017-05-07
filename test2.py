@@ -148,7 +148,7 @@ class Environment:
         self.left_light.update()
         if self.left_light.x <= self.train.x:
             self.left_light = Light(self.train, 'dummy')
-            #print(pygame.time.get_ticks())
+            print(self.right_light.x - self.left_light.x)
         self.right_light.update()
         if self.right_light.x >= self.train.x + self.train.w:
             self.left_light = Light(self.train, self.light_type+'_left')
