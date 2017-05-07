@@ -3,7 +3,7 @@ import sys
 
 
 class Light:
-    color = (255, 255, 0)
+    color = (255, 152, 0)
     r = 1
     c = 1
 
@@ -40,8 +40,10 @@ class Light:
         
     def update(self):
         self.move()
-        self.train.env.light_positions.add((int(self.x), int(self.y)))
-        if self.train.type == 'stationary_train' or self.train.type == 'moving_train':
+        if self.train.type == 'train_frame' or self.train.type == 'ground_frame':
+            if self.train.env.switch_count <= 1:
+                self.train.env.light_positions.add((int(self.x), int(self.y)))
+        elif self.train.type == 'stationary_train' or self.train.type == 'moving_train':
             self.display()
         
     def move(self):
@@ -52,7 +54,8 @@ class Light:
         pygame.draw.circle(self.train.env.screen, self.color, (int(self.x), int(self.y)), 3, 0)
 
 class Train:
-    color = (0,0,0)
+    main_color = (172, 240, 242)
+    gun_color = (34, 83, 120)
     w = 200
     h = 20
     
@@ -94,8 +97,8 @@ class Train:
     def display(self):
         rec = (self.x, self.y, self.w, self.h)
         cir = (int(self.x+self.w//2), int(self.y+self.h//2))
-        pygame.draw.rect(self.env.screen, self.color, rec, 1)
-        pygame.draw.circle(self.env.screen, self.color, cir, 10, 0)
+        pygame.draw.rect(self.env.screen, self.main_color, rec, 0)
+        pygame.draw.circle(self.env.screen, self.gun_color, cir, 10, 0)
         
     def contract(self):
         from math import sqrt
@@ -105,11 +108,13 @@ class Train:
 class Environment:
     screen_X_size = 640
     screen_Y_size = 640
-    def_train_speed = 0.3
+    def_train_speed = 0.5
     
-    def __init__(self, sim_type, light_type):
+    def __init__(self, sim_type, light_type, switchable=True):
         self.sim_type = sim_type
         self.light_type = light_type
+        self.switchable = switchable
+        self.switch_count = 0
     
         pygame.init()
         self.screen = pygame.display.set_mode((self.screen_X_size, self.screen_Y_size))
@@ -135,16 +140,13 @@ class Environment:
         while True:
             ms_elapsed = clock.tick(100)
             
-            #  change train
-            if self.train.y >= self.screen_Y_size :
-                if self.train.type == 'train_frame':
-                    self.train = Train(env, 'ground_frame')
-                    self.left_light = Light(self.train, self.light_type+'_left')
-                    self.right_light = Light(self.train, self.light_type+'_right')
-                else:
-                    self.train = Train(self, 'train_frame')
-                    self.left_light = Light(self.train, self.light_type+'_left')
-                    self.right_light = Light(self.train, self.light_type+'_right')
+            if self.sim_type == 'moving_train':
+                if self.train.x >= self.screen_X_size:
+                    self.train = Train(self, 'moving_train')
+            elif self.switchable and self.train.y >= self.screen_Y_size :
+                self.change_train()
+            
+            
             
             #pygame.time.delay(10) 
             self.update()
@@ -186,9 +188,21 @@ class Environment:
         
         pygame.display.flip()
     
+    def change_train(self):
+        if self.train.type == 'train_frame':
+            self.train = Train(env, 'ground_frame')
+            self.left_light = Light(self.train, self.light_type+'_left')
+            self.right_light = Light(self.train, self.light_type+'_right')
+            self.switch_count += 1
+        else:
+            self.train = Train(self, 'train_frame')
+            self.left_light = Light(self.train, self.light_type+'_left')
+            self.right_light = Light(self.train, self.light_type+'_right')
+            self.switch_count += 1
+    
     def display_light_positions(self):
         for position in self.light_positions:
-            pygame.draw.circle(self.screen, (255, 255, 0), position, 3, 0)
+            pygame.draw.circle(self.screen, Light.color, position, 3, 0)
     
     def display_grid(self):
         for x in range(20, self.screen_X_size, 50):
