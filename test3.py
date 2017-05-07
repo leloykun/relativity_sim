@@ -1,4 +1,5 @@
-from visual import *
+from __future__ import division, print_function
+from vpython import *
 from visual.controls import *
 import numpy
 
