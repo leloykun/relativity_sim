@@ -80,6 +80,8 @@ class Train:
             self.y = (self.env.screen_Y_size - self.h) // 2
             self.dx = self.env.def_train_speed
             self.dy = 0
+            if self.env.light_type == 'einstein':
+                self.contract()
             
     def update(self):
         self.move()
@@ -91,9 +93,13 @@ class Train:
     
     def display(self):
         rec = (self.x, self.y, self.w, self.h)
-        cir = (int(self.x+100), int(self.y+10))
+        cir = (int(self.x+self.w//2), int(self.y+self.h//2))
         pygame.draw.rect(self.env.screen, self.color, rec, 1)
         pygame.draw.circle(self.env.screen, self.color, cir, 10, 0)
+        
+    def contract(self):
+        from math import sqrt
+        self.w = self.w * sqrt(1-self.dx*self.dx)
         
         
 class Environment:
@@ -168,6 +174,7 @@ class Environment:
         self.left_light.update()
         if self.left_light.x <= self.train.x:
             self.left_light = Light(self.train, 'dummy')
+        
         self.right_light.update()
         if self.right_light.x >= self.train.x + self.train.w:
             self.left_light = Light(self.train, self.light_type+'_left')
@@ -194,7 +201,7 @@ if __name__ == '__main__':
     #env = Environment(sim_type='train_frame', light_type='gallilean')
     #env = Environment(sim_type='train_frame', light_type='einstein')
     #env = Environment(sim_type='stationary_train', light_type='einstein')
-    env = Environment(sim_type='moving_train', light_type='einstein')
+    #env = Environment(sim_type='moving_train', light_type='einstein')
     env = Environment(sim_type='moving_train', light_type='gallilean')
     env.run()
     
