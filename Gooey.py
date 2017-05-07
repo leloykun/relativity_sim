@@ -1,4 +1,5 @@
-import thorpy, test2
+from relativity import Environment, Train, Light 
+import thorpy
 
 def setProperties(simButton):
     simButton.set_main_color((255,255,255))
@@ -17,27 +18,50 @@ def setProp2(simButton):
     
 ####
     
-def launch_game1():
-    test2.env = test2.Environment(sim_type='train_frame', light_type='einstein')
-    if __name__ == '__main__':
-        test2.env.run()
+def sim1():
+    env = Environment(sim_type='stationary_train', light_type='einstein')
+    env.run()
 
+def sim2():
+    env = Environment(sim_type='moving_train', light_type='einstein')
+    env.run()
 
+def sim3():
+    env = Environment(sim_type='train_frame', light_type='einstein')
+    env.run()
+    
+def sim4():
+    env = Environment(sim_type='ground_frame', light_type='einstein')
+    env.run()
 
+def sim5():
+    env = Environment(sim_type='stationary_train', light_type='galillean')
+    env.run()
 
+def sim6():
+    env = Environment(sim_type='moving_train', light_type='galillean')
+    env.run()
+
+def sim7():
+    env = Environment(sim_type='train_frame', light_type='galillean')
+    env.run()
+    
+def sim8():
+    env = Environment(sim_type='ground_frame', light_type='galillean')
+    env.run()
 
 ###
 application = thorpy.Application(size=(700, 700), caption="Relativity Simulation")    
 
 #make buttons
-simButton1 = thorpy.make_button("Einstein1", func = launch_game1)
-simButton2 = thorpy.make_button("Einstein2", func = launch_game1)
-simButton3 = thorpy.make_button("Einstein3", func = launch_game1)
-simButton4 = thorpy.make_button("Einstein4", func = launch_game1)
-simButton5 = thorpy.make_button("Galileo1 ", func = launch_game1)
-simButton6 = thorpy.make_button("Galileo2 ", func = launch_game1)
-simButton7 = thorpy.make_button("Galileo3 ", func = launch_game1)
-simButton8 = thorpy.make_button("Galileo4 ", func = launch_game1)
+simButton1 = thorpy.make_button("Einstein1", func = sim1)
+simButton2 = thorpy.make_button("Einstein2", func = sim2)
+simButton3 = thorpy.make_button("Einstein3", func = sim3)
+simButton4 = thorpy.make_button("Einstein4", func = sim4)
+simButton5 = thorpy.make_button("Galileo1 ", func = sim5)
+simButton6 = thorpy.make_button("Galileo2 ", func = sim6)
+simButton7 = thorpy.make_button("Galileo3 ", func = sim7)
+simButton8 = thorpy.make_button("Galileo4 ", func = sim8)
 
 label1 = thorpy.Draggable.make("Einsteinian")
 label2 = thorpy.Draggable.make("Galilean")
@@ -53,8 +77,7 @@ setProp2(simButton4)
 setProp2(simButton5)
 setProp2(simButton6)
 setProp2(simButton7)
-setProp2(simButton8
-         )
+setProp2(simButton8)
 
 
 #separate properties for quitButton

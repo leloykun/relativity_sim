@@ -146,8 +146,6 @@ class Environment:
             elif self.switchable and self.train.y >= self.screen_Y_size :
                 self.change_train()
             
-            
-            
             #pygame.time.delay(10) 
             self.update()
     
@@ -160,7 +158,7 @@ class Environment:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.quit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.pause()
         
