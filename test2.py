@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+global env
 
 class Light:
     color = (255, 255, 0)
