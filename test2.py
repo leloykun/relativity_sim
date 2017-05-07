@@ -1,7 +1,6 @@
 import pygame
 import sys
 
-global env
 
 class Light:
     color = (255, 255, 0)
@@ -41,7 +40,7 @@ class Light:
         
     def update(self):
         self.move()
-        self.train.env.light_positions.append((self.x, self.y))
+        self.train.env.light_positions.add((int(self.x), int(self.y)))
         
     def move(self):
         self.x += self.dx
@@ -104,7 +103,7 @@ class Environment:
         self.left_light = Light(self.train, self.light_type+'_left')
         self.right_light = Light(self.train, self.light_type+'_right')
         
-        self.light_positions = []
+        self.light_positions = set()
         
     def run(self):
         clock = pygame.time.Clock()
@@ -145,18 +144,18 @@ class Environment:
         
         self.train.update()
         
+        print(self.right_light.x - self.left_light.x)
+        
         self.left_light.update()
         if self.left_light.x <= self.train.x:
             self.left_light = Light(self.train, 'dummy')
-            print(self.right_light.x - self.left_light.x)
         self.right_light.update()
         if self.right_light.x >= self.train.x + self.train.w:
             self.left_light = Light(self.train, self.light_type+'_left')
             self.right_light = Light(self.train, self.light_type+'_right')
             
-        for i in range(0, len(self.light_positions), 9):
-            x, y = map(int, self.light_positions[i])
-            pygame.draw.circle(self.screen, (255, 255, 0), (x, y), 3, 0)
+        for position in self.light_positions:
+            pygame.draw.circle(self.screen, (255, 255, 0), position, 3, 0)
         
         for x in range(20, self.screen_X_size, 50):
             pygame.draw.aaline(self.screen, (0, 0, 0),  (x, 0), (x, self.screen_Y_size))
