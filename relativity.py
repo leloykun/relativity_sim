@@ -1,7 +1,31 @@
 import pygame
 import sys
 
+class Grid:
+    color = (0, 0, 0)
 
+    def __init__(self, env):
+        self.env = env
+        if self.env.sim_type == 'train_frame' or self.env.sim_type == 'ground_frame':
+            self.x_offset = 20
+            self.y_offset = 10
+            self.spacing = 50
+        elif self.env.sim_type == 'stationary_train' or self.env.sim_type == 'moving_train':
+            self.x_offset = 0
+            self.y_offset = 0
+            self.spacing = 80
+            
+    def update(self):
+        if self.env.sim_type == 'stationary_train':
+            self.x_offset -= self.env.def_train_speed
+        self.display()
+        
+    def display(self):
+        for x in range(int(self.x_offset), self.env.screen_X_size, self.spacing):
+            pygame.draw.aaline(self.env.screen, self.color,  (x, 0), (x, self.env.screen_Y_size))
+        for y in range(self.y_offset, self.env.screen_Y_size, self.spacing):
+            pygame.draw.aaline(self.env.screen, self.color,  (0, y), (self.env.screen_X_size, y))
+            
 class Light:
     color = (255, 152, 0)
     r = 1
@@ -53,6 +77,7 @@ class Light:
     def display(self):
         pygame.draw.circle(self.train.env.screen, self.color, (int(self.x), int(self.y)), 3, 0)
 
+        
 class Train:
     main_color = (172, 240, 242)
     gun_color = (34, 83, 120)
@@ -121,6 +146,8 @@ class Environment:
         
         self.paused = False
         
+        self.grid = Grid(self)
+        
         if sim_type == 'train_frame':
             self.train = Train(self, 'train_frame')
         elif sim_type == 'ground_frame':
@@ -158,7 +185,7 @@ class Environment:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.quit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.pause()
         
@@ -166,6 +193,8 @@ class Environment:
             return
     
         self.screen.fill((255, 255, 255))
+        
+        self.grid.update()
         
         self.train.update()
         
@@ -182,13 +211,12 @@ class Environment:
         
         if self.sim_type == 'train_frame' or self.sim_type == 'ground_frame':
             self.display_light_positions()
-            self.display_grid()
         
         pygame.display.flip()
     
     def change_train(self):
         if self.train.type == 'train_frame':
-            self.train = Train(env, 'ground_frame')
+            self.train = Train(self, 'ground_frame')
             self.left_light = Light(self.train, self.light_type+'_left')
             self.right_light = Light(self.train, self.light_type+'_right')
             self.switch_count += 1
@@ -202,19 +230,14 @@ class Environment:
         for position in self.light_positions:
             pygame.draw.circle(self.screen, Light.color, position, 3, 0)
     
-    def display_grid(self):
-        for x in range(20, self.screen_X_size, 50):
-            pygame.draw.aaline(self.screen, (0, 0, 0),  (x, 0), (x, self.screen_Y_size))
-        for y in range(10, self.screen_Y_size, 50):
-            pygame.draw.aaline(self.screen, (0, 0, 0),  (0, y), (self.screen_X_size, y))
-    
 
 if __name__ == '__main__':
     #env = Environment(sim_type='train_frame', light_type='gallilean')
     #env = Environment(sim_type='train_frame', light_type='einstein')
     #env = Environment(sim_type='stationary_train', light_type='einstein')
     #env = Environment(sim_type='moving_train', light_type='einstein')
-    env = Environment(sim_type='moving_train', light_type='gallilean')
-    env.run()
+    #env = Environment(sim_type='moving_train', light_type='gallilean')
+    #env.run()
+    pass
     
     

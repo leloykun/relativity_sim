@@ -35,19 +35,19 @@ def sim4():
     env.run()
 
 def sim5():
-    env = Environment(sim_type='stationary_train', light_type='galillean')
+    env = Environment(sim_type='stationary_train', light_type='gallilean')
     env.run()
 
 def sim6():
-    env = Environment(sim_type='moving_train', light_type='galillean')
+    env = Environment(sim_type='moving_train', light_type='gallilean')
     env.run()
 
 def sim7():
-    env = Environment(sim_type='train_frame', light_type='galillean')
+    env = Environment(sim_type='train_frame', light_type='gallilean')
     env.run()
     
 def sim8():
-    env = Environment(sim_type='ground_frame', light_type='galillean')
+    env = Environment(sim_type='ground_frame', light_type='gallilean')
     env.run()
 
 ###
@@ -109,8 +109,9 @@ quitButton.set_text("  Exit  ")
 
 
 #put buttons in box
-Elem = [label1, simButton1,simButton2, simButton3, simButton4, label2,  simButton5, simButton6,
-        simButton7, simButton8, quitButton]
+Elem = [label1, simButton1,simButton2, simButton3, simButton4, 
+        label2,  simButton5, simButton6, simButton7, simButton8, 
+        quitButton]
 central_box = thorpy.Box.make(elements = Elem)
 central_box.fit_children(margins=(40,40))
 central_box.center()
