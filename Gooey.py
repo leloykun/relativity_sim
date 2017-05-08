@@ -1,4 +1,4 @@
-from relativity import Environment, Train, Light 
+from relativity import Environment
 import thorpy
 
 def setProperties(simButton):
