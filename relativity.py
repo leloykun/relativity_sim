@@ -22,12 +22,22 @@ class Grid:
             self.x_offset -= self.env.def_train_speed
         self.display()
         
-    def display(self):
-        for x in range(int(self.x_offset), self.env.screen_X_size, self.spacing):
-            pygame.draw.aaline(self.env.screen, self.color,  (x, 0), (x, self.env.screen_Y_size))
-        for y in range(self.y_offset, self.env.screen_Y_size, self.spacing):
-            pygame.draw.aaline(self.env.screen, self.color,  (0, y), (self.env.screen_X_size, y))
+    def display(self, distorted=False):
+        for x in range(int(self.x_offset), self.env.screen_X_size + (self.env.screen_X_size - self.env.screen_X_size%self.spacing), self.spacing):
+            pygame.draw.aaline(self.env.screen, self.color,  (x, 0), (x + (self.x_distortion if distorted else 0), self.env.screen_Y_size))
+        for y in range(self.y_offset - (self.env.screen_Y_size - self.env.screen_Y_size%self.spacing), self.env.screen_Y_size, self.spacing):
+            pygame.draw.aaline(self.env.screen, self.color,  (0, y), (self.env.screen_X_size, y + (self.y_distortion if distorted else 0)))
             
+    def distort(self):
+        y_rise = self.env.twisted_light_paths[1][1][1] - self.env.twisted_light_paths[0][1][1]
+        y_run = self.env.twisted_light_paths[1][1][0] - self.env.twisted_light_paths[0][1][0]
+        self.y_distortion = int(self.env.screen_X_size*y_rise/y_run)
+        
+        x_rise = self.env.twisted_lengths[1][0][1] - self.env.twisted_lengths[0][0][1]
+        x_run = self.env.twisted_lengths[1][0][0] - self.env.twisted_lengths[0][0][0]
+        print(x_rise, x_run)
+        self.x_distortion = int(-self.y_distortion)
+        
 class Light:
     color = (255, 152, 0)
     r = 1
@@ -135,7 +145,7 @@ class Train:
 class Environment:
     screen_X_size = 640
     screen_Y_size = 640
-    def_train_speed = 0.5
+    def_train_speed = 0.7
     
     def __init__(self, sim_type, light_type, switchable=True):
         self.sim_type = sim_type
@@ -163,8 +173,15 @@ class Environment:
         self.left_light = Light(self.train, self.light_type+'_left')
         self.right_light = Light(self.train, self.light_type+'_right')
         
+        self.normal_light_paths = [] 
+        self.normal_lengths = []
+        self.twisted_light_paths = [] 
+        self.twisted_lengths = []
+        
         self.calculate_normal()
         self.calculate_twisted()
+        
+        self.grid.distort()
         
         self.light_positions = set()
         self.lengths = set()
@@ -197,8 +214,6 @@ class Environment:
             self.anim_frame = (self.anim_frame + 1) % 100
     
     def calculate_normal(self):
-        self.normal_light_paths = [] 
-        self.normal_lengths = []
         for i in range(6):
             self.normal_light_paths.append(((self.screen_X_size//2, self.train.h//2 + 100*i), 
                                            ((self.screen_X_size - self.train.w)//2, self.train.h//2 + 100*(i+1))))
@@ -208,8 +223,6 @@ class Environment:
                                         ((self.screen_X_size + self.train.w)//2, self.train.h//2 + 100*(i+1))))
         
     def calculate_twisted(self):
-        self.twisted_light_paths = [] 
-        self.twisted_lengths = []
         for i in range(6):
             if self.light_type == 'gallilean':
                 left_dx = (self.train.w//2)*(self.def_train_speed - Light.c)
