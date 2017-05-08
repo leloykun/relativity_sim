@@ -163,8 +163,8 @@ class Environment:
         self.left_light = Light(self.train, self.light_type+'_left')
         self.right_light = Light(self.train, self.light_type+'_right')
         
-        self.normal_lines = self.calculate_normal()
-        self.twisted_lines = self.calculate_twisted()
+        self.calculate_normal()
+        self.calculate_twisted()
         
         self.light_positions = set()
         self.lengths = set()
@@ -197,14 +197,19 @@ class Environment:
             self.anim_frame = (self.anim_frame + 1) % 100
     
     def calculate_normal(self):
-        temp = []
+        self.normal_light_paths = [] 
+        self.normal_lengths = []
         for i in range(6):
-            temp.append(((self.screen_X_size//2, self.train.h//2 + 100*i), ((self.screen_X_size - self.train.w)//2, self.train.h//2 + 100*(i+1))))
-            temp.append(((self.screen_X_size//2, self.train.h//2 + 100*i), ((self.screen_X_size + self.train.w)//2, self.train.h//2 + 100*(i+1))))
-        return temp
+            self.normal_light_paths.append(((self.screen_X_size//2, self.train.h//2 + 100*i), 
+                                           ((self.screen_X_size - self.train.w)//2, self.train.h//2 + 100*(i+1))))
+            self.normal_light_paths.append(((self.screen_X_size//2, self.train.h//2 + 100*i), 
+                                           ((self.screen_X_size + self.train.w)//2, self.train.h//2 + 100*(i+1))))
+            self.normal_lengths.append((((self.screen_X_size - self.train.w)//2, self.train.h//2 + 100*(i+1)), 
+                                        ((self.screen_X_size + self.train.w)//2, self.train.h//2 + 100*(i+1))))
         
     def calculate_twisted(self):
-        temp = []
+        self.twisted_light_paths = [] 
+        self.twisted_lengths = []
         for i in range(6):
             if self.light_type == 'gallilean':
                 left_dx = (self.train.w//2)*(self.def_train_speed - Light.c)
@@ -212,16 +217,17 @@ class Environment:
                 print(left_dx, right_dx)
                 vx = self.train.w//2 + (self.train.w//2)*self.def_train_speed*i
                 vy = self.train.h//2 + 100*i
-                temp.append(((vx, vy), (vx + left_dx, vy + 100)))
-                temp.append(((vx, vy), (vx + right_dx, vy + 100)))
+                self.twisted_light_paths.append(((vx, vy), (vx + left_dx, vy + 100)))
+                self.twisted_light_paths.append(((vx, vy), (vx + right_dx, vy + 100)))
+                self.twisted_lengths.append(((vx + left_dx, vy + 100), (vx + right_dx, vy + 100)))
             elif self.light_type == 'einstein':
                 left_dx = -(self.train.w//2)//(self.def_train_speed + Light.c)
                 right_dx = -(self.train.w//2)//(self.def_train_speed - Light.c)
                 vx = self.train.w//2 + right_dx*self.def_train_speed*i
                 vy = self.train.h//2 + right_dx*i
-                temp.append(((vx, vy), (vx + left_dx, vy - left_dx)))
-                temp.append(((vx, vy), (vx + right_dx, vy + right_dx)))
-        return temp
+                self.twisted_light_paths.append(((vx, vy), (vx + left_dx, vy - left_dx)))
+                self.twisted_light_paths.append(((vx, vy), (vx + right_dx, vy + right_dx)))
+                self.twisted_lengths.append(((vx + left_dx, vy - left_dx), (vx - left_dx, vy - left_dx)))
     
     def animate_transformation(self):
         self.check_for_events()
@@ -230,34 +236,49 @@ class Environment:
         
         self.grid.update()
         
-        for i in range(len(self.normal_lines)):
-            line = self.normal_lines[i]
-            if self.anim_frame == 0:
-                pygame.time.delay(20)
-            elif self.anim_frame < 50:
-                (nx0, ny0), (nx1, ny1) = self.normal_lines[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_lines[i]
+        
+        if self.anim_frame == 0:
+            pygame.time.delay(100)
+        
+        for i in range(len(self.normal_lengths)):
+            if self.anim_frame < 50:
+                (nx0, ny0), (nx1, ny1) = self.normal_lengths[i]
+                (tx0, ty0), (tx1, ty1) = self.twisted_lengths[i]
+                fro_x = nx0 + (tx0-nx0)*(self.anim_frame+1)//50
+                fro_y = ny0 + (ty0-ny0)*(self.anim_frame+1)//50
+                to_x = nx1 + (tx1-nx1)*(self.anim_frame+1)//50
+                to_y = ny1 + (ty1-ny1)*(self.anim_frame+1)//50
+                pygame.draw.line(self.screen, (127, 127, 127), (fro_x, fro_y), (to_x, to_y), 7)
+            else:
+                (nx0, ny0), (nx1, ny1) = self.normal_lengths[i]
+                (tx0, ty0), (tx1, ty1) = self.twisted_lengths[i]
+                fro_x = tx0 - (tx0-nx0)*(self.anim_frame-49)//50
+                fro_y = ty0 - (ty0-ny0)*(self.anim_frame-49)//50
+                to_x = tx1 - (tx1-nx1)*(self.anim_frame-49)//50
+                to_y = ty1 - (ty1-ny1)*(self.anim_frame-49)//50
+                pygame.draw.line(self.screen, (127, 127, 127), (fro_x, fro_y), (to_x, to_y), 7)
+        
+        for i in range(len(self.normal_light_paths)):
+            if self.anim_frame < 50:
+                (nx0, ny0), (nx1, ny1) = self.normal_light_paths[i]
+                (tx0, ty0), (tx1, ty1) = self.twisted_light_paths[i]
                 fro_x = nx0 + (tx0-nx0)*(self.anim_frame+1)//50
                 fro_y = ny0 + (ty0-ny0)*(self.anim_frame+1)//50
                 to_x = nx1 + (tx1-nx1)*(self.anim_frame+1)//50
                 to_y = ny1 + (ty1-ny1)*(self.anim_frame+1)//50
                 pygame.draw.line(self.screen, Light.color, (fro_x, fro_y), (to_x, to_y), 7)
             else:
-                (nx0, ny0), (nx1, ny1) = self.normal_lines[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_lines[i]
+                (nx0, ny0), (nx1, ny1) = self.normal_light_paths[i]
+                (tx0, ty0), (tx1, ty1) = self.twisted_light_paths[i]
                 fro_x = tx0 - (tx0-nx0)*(self.anim_frame-49)//50
                 fro_y = ty0 - (ty0-ny0)*(self.anim_frame-49)//50
                 to_x = tx1 - (tx1-nx1)*(self.anim_frame-49)//50
                 to_y = ty1 - (ty1-ny1)*(self.anim_frame-49)//50
                 pygame.draw.line(self.screen, Light.color, (fro_x, fro_y), (to_x, to_y), 7)
-            if self.anim_frame == 50:
-                pygame.time.delay(20)
-        '''
-        for line in self.normal_lines:
-            pygame.draw.line(self.screen, Light.color, line[0], line[1], 7)
-        for line in self.twisted_lines:
-            pygame.draw.line(self.screen, Light.color, line[0], line[1], 7)
-        '''
+        
+        if self.anim_frame == 50:
+            pygame.time.delay(100)
+        
         pygame.display.flip()
     
     def check_for_events(self):
