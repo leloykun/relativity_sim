@@ -135,7 +135,7 @@ class Train:
 class Environment:
     screen_X_size = 640
     screen_Y_size = 640
-    def_train_speed = 0.9
+    def_train_speed = 0.5
     
     def __init__(self, sim_type, light_type, switchable=True):
         self.sim_type = sim_type
