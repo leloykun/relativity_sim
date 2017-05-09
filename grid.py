@@ -1,7 +1,7 @@
 import pygame
 
 class Grid:
-    color = (127, 127, 127)
+    color = (200, 200, 200)
     x_distortion = 0
     y_distortion = 0
 

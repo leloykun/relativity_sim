@@ -54,8 +54,13 @@ class Environment:
                     self.train = Train(self)
                     self.left_light = Light(self, 'left')
                     self.right_light = Light(self, 'right')
-            elif self.switchable and self.train.y >= self.screen_Y_size:
-                self.change_train()
+            elif self.train.y >= self.screen_Y_size:
+                if self.switchable:
+                    self.change_train()
+                else:
+                    self.train = Train(self)
+                    self.left_light = Light(self, 'left')
+                    self.right_light = Light(self, 'right')
             
             #pygame.time.delay(10) 
             self.update()
@@ -70,7 +75,7 @@ class Environment:
         self.anim_frame = 0
         while self.showing_transformation:
             self.animate_transformation()
-            pygame.time.delay(5)
+            pygame.time.delay(10)
             self.anim_frame = (self.anim_frame + 1) % 100
     
     def calculate_normal(self):
@@ -109,40 +114,35 @@ class Environment:
         
         self.grid.update()
         
-        
         if self.anim_frame == 0:
             pygame.time.delay(100)
         
         for i in range(len(self.normal_lengths)):
+            (nx0, ny0), (nx1, ny1) = self.normal_lengths[i]
+            (tx0, ty0), (tx1, ty1) = self.twisted_lengths[i]
             if self.anim_frame < 50:
-                (nx0, ny0), (nx1, ny1) = self.normal_lengths[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_lengths[i]
                 fro_x = nx0 + (tx0-nx0)*(self.anim_frame+1)//50
                 fro_y = ny0 + (ty0-ny0)*(self.anim_frame+1)//50
                 to_x = nx1 + (tx1-nx1)*(self.anim_frame+1)//50
                 to_y = ny1 + (ty1-ny1)*(self.anim_frame+1)//50
-                pygame.draw.line(self.screen, (127, 127, 127), (fro_x, fro_y), (to_x, to_y), 7)
+                pygame.draw.line(self.screen, Train.len_tracker_color, (fro_x, fro_y), (to_x, to_y), 7)
             else:
-                (nx0, ny0), (nx1, ny1) = self.normal_lengths[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_lengths[i]
                 fro_x = tx0 - (tx0-nx0)*(self.anim_frame-49)//50
                 fro_y = ty0 - (ty0-ny0)*(self.anim_frame-49)//50
                 to_x = tx1 - (tx1-nx1)*(self.anim_frame-49)//50
                 to_y = ty1 - (ty1-ny1)*(self.anim_frame-49)//50
-                pygame.draw.line(self.screen, (127, 127, 127), (fro_x, fro_y), (to_x, to_y), 7)
+                pygame.draw.line(self.screen, Train.len_tracker_color, (fro_x, fro_y), (to_x, to_y), 7)
         
         for i in range(len(self.normal_light_paths)):
+            (nx0, ny0), (nx1, ny1) = self.normal_light_paths[i]
+            (tx0, ty0), (tx1, ty1) = self.twisted_light_paths[i]
             if self.anim_frame < 50:
-                (nx0, ny0), (nx1, ny1) = self.normal_light_paths[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_light_paths[i]
                 fro_x = nx0 + (tx0-nx0)*(self.anim_frame+1)//50
                 fro_y = ny0 + (ty0-ny0)*(self.anim_frame+1)//50
                 to_x = nx1 + (tx1-nx1)*(self.anim_frame+1)//50
                 to_y = ny1 + (ty1-ny1)*(self.anim_frame+1)//50
                 pygame.draw.line(self.screen, Light.color, (fro_x, fro_y), (to_x, to_y), 7)
             else:
-                (nx0, ny0), (nx1, ny1) = self.normal_light_paths[i]
-                (tx0, ty0), (tx1, ty1) = self.twisted_light_paths[i]
                 fro_x = tx0 - (tx0-nx0)*(self.anim_frame-49)//50
                 fro_y = ty0 - (ty0-ny0)*(self.anim_frame-49)//50
                 to_x = tx1 - (tx1-nx1)*(self.anim_frame-49)//50
@@ -211,6 +211,6 @@ class Environment:
     
     def persistent_info(self):
         for line in self.lengths:
-            pygame.draw.line(self.screen, (127, 127, 127), line[0], line[1], 7)
+            pygame.draw.line(self.screen, Train.len_tracker_color, line[0], line[1], 7)
         for position in self.light_positions:
             pygame.draw.circle(self.screen, Light.color, position, 3, 0)

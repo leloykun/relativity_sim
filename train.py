@@ -3,6 +3,7 @@ import pygame
 class Train:
     main_color = (172, 240, 242)
     gun_color = (34, 83, 120)
+    len_tracker_color = (127, 127, 127)
     w = 200
     h = 20
     

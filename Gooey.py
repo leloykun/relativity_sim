@@ -1,55 +1,65 @@
-from relativity import Environment
+from environment import Environment
 import thorpy
-
-def setProperties(simButton):
-    simButton.set_main_color((255,255,255))
-    simButton.set_font_color_hover((255, 0, 0))
-    simButton.set_font_size(23)
-    simButton.set_size((200,50))
-    simButton.set_font('Calibri')
-
-def setProp2(simButton):
-    simButton.set_main_color((255,200,255))
-    simButton.set_font_color_hover((255,0,0))
-    simButton.set_font_size(15)
-    simButton.set_size((150,25))
-    simButton.set_font('Calibri')
 
 
 class Menu:
+    '''
+        Temujin, if you're reading this, forget about the plan I told you last time,
+        kahit anong improvements gawin mo, ok la
+        just make sure na:
+            1) some random person would know what to do
+                -> so parang like may text somewhere (bis la gamit hin make_text())
+                   na nag-eexplain what to do
+            2) kailangan may way na macontrol han user an speed han train
+                like gamit hin inserter or smth
+        
+        check these out:
+            http://www.thorpy.org/tutorials/minigame.html
+            http://www.thorpy.org/documentation/userguide/cheatsheet.html#elements
+            http://www.thorpy.org/tutorials/minigame.html
+    '''
+    def_text_color = (200, 200, 200)
+    hover_text_color = ()
+    
     def run(self):
         ###
         application = thorpy.Application(size=(640, 640), caption="Relativity Simulation")    
-
-        #make buttons
-        simButton1 = thorpy.make_button("Einstein1", func = self.sim1)
-        simButton2 = thorpy.make_button("Einstein2", func = self.sim2)
-        simButton3 = thorpy.make_button("Einstein3", func = self.sim3)
-        simButton4 = thorpy.make_button("Einstein4", func = self.sim4)
-        simButton5 = thorpy.make_button("Galileo1 ", func = self.sim5)
-        simButton6 = thorpy.make_button("Galileo2 ", func = self.sim6)
-        simButton7 = thorpy.make_button("Galileo3 ", func = self.sim7)
-        simButton8 = thorpy.make_button("Galileo4 ", func = self.sim8)
-
+        
+        reference_frames = ['train', 'ground']
+        has_time_dims    = ['False', 'True']
+        transformations  = ['lorentz', 'galilean']
+        
+        buttons = []
+        for transformation in transformations:
+            for has_time_dim in has_time_dims:
+                for reference_frame in reference_frames:
+                    buttons.append(thorpy.make_button(reference_frame + '-' + has_time_dim + '-' + transformation, 
+                                                      func=self.sim, 
+                                                      params={'reference_frame':reference_frame , 'has_time_dim':has_time_dim, 'transformation':transformation}))
+        
         label1 = thorpy.Draggable.make("Einsteinian")
         label2 = thorpy.Draggable.make("Galilean")
 
-                                 
+        
+        self.setProperties(label1)
+        self.setProperties(label2)
+        for button in buttons:
+            self.setProp2(button)
+            
+        '''
         #set button properties
-        setProperties(label1)
-        setProperties(label2)
-        setProp2(simButton1)
-        setProp2(simButton2)
-        setProp2(simButton3)
-        setProp2(simButton4)
-        setProp2(simButton5)
-        setProp2(simButton6)
-        setProp2(simButton7)
-        setProp2(simButton8)
-
+        self.setProp2(simButton1)
+        self.setProp2(simButton2)
+        self.setProp2(simButton3)
+        self.setProp2(simButton4)
+        self.setProp2(simButton5)
+        self.setProp2(simButton6)
+        self.setProp2(simButton7)
+        self.setProp2(simButton8)
+        '''
 
         #separate properties for quitButton
-        quitButton = thorpy.make_button("Quit", func=thorpy.functions.quit_menu_func)
+        quitButton = thorpy.make_button("Exit", func=thorpy.functions.quit_menu_func)
         quitButton.set_main_color((255,255,255))
         quitButton.set_font_color_hover((255, 0, 0))
         quitButton.set_font_size(15)
@@ -62,24 +72,8 @@ class Menu:
         thorpy.makeup.add_basic_help(simButton2,"insert description here")
         """
 
-
-        #set button text
-        simButton1.set_text("  1  ")
-        simButton2.set_text("  2  ")
-        simButton3.set_text("  3  ")
-        simButton4.set_text("  4  ")
-        simButton5.set_text("  5  ")
-        simButton6.set_text("  6  ")
-        simButton7.set_text("  7  ")
-        simButton8.set_text("  8  ")
-
-        quitButton.set_text("  Exit  ")
-
-
         #put buttons in box
-        Elem = [label1, simButton1,simButton2, simButton3, simButton4, 
-                label2,  simButton5, simButton6, simButton7, simButton8, 
-                quitButton]
+        Elem = [label1] + buttons[0:4] + [label2] + buttons[4:8] + [quitButton]
         central_box = thorpy.Box.make(elements = Elem)
         central_box.fit_children(margins=(20,20))
         central_box.center()
@@ -105,39 +99,30 @@ class Menu:
 
     ####
     
-    def sim1(self):
-        env = Environment(self, sim_type='train_notime', light_type='lorentz')
+    def setProperties(self, simButton):
+        simButton.set_main_color((255,255,255))
+        simButton.set_font_color_hover((255, 0, 0))
+        simButton.set_font_size(23)
+        simButton.set_size((200,50))
+        simButton.set_font('Calibri')
+
+    def setProp2(sefl, simButton):
+        simButton.set_main_color((255,200,255))
+        simButton.set_font_color_hover((255,0,0))
+        simButton.set_font_size(15)
+        simButton.set_size((150,25))
+        simButton.set_font('Calibri')
+    
+    def sim(self, reference_frame, has_time_dim, transformation):
+        print(reference_frame, bool(has_time_dim), transformation)
+        env = Environment(self, reference_frame=reference_frame, has_time_dim=bool(has_time_dim), transformation=transformation, switchable=True)
         env.run()
 
-    def sim2(self):
-        env = Environment(self, sim_type='ground_notime', light_type='lorentz')
-        env.run()
-
-    def sim3(self):
-        env = Environment(self, sim_type='train_time', light_type='lorentz')
-        env.run()
-        
-    def sim4(self):
-        env = Environment(self, sim_type='ground_time', light_type='lorentz')
-        env.run()
-
-    def sim5(self):
-        env = Environment(self, sim_type='train_notime', light_type='gallilean')
-        env.run()
-
-    def sim6(self):
-        env = Environment(self, sim_type='ground_notime', light_type='gallilean')
-        env.run()
-
-    def sim7(self):
-        env = Environment(self, sim_type='train_time', light_type='gallilean')
-        env.run()
-        
-    def sim8(self):
-        env = Environment(self, sim_type='ground_time', light_type='gallilean')
-        env.run()
-        
         
 if __name__ == '__main__':
+    '''
+    env = Environment(menu=None, reference_frame='ground', has_time_dim=False, transformation='galilean', switchable=True)
+    env.run()
+    '''
     my_menu = Menu()
     my_menu.run()
