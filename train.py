@@ -12,7 +12,7 @@ class Train:
         if self.env.has_time_dim:
             self.y = 0
             self.dy = 1
-        elif self.env.has_time_dim:
+        elif self.env.has_time_dim == False:
             self.y = (self.env.screen_Y_size - self.h) // 2
             self.dy = 0
         else:
@@ -30,7 +30,7 @@ class Train:
         #  special case:
         if self.env.reference_frame == 'ground' and self.env.has_time_dim == False:
             self.x = -200
-            if self.env.transformation == 'lorrentz':
+            if self.env.transformation == 'lorentz':
                 self.contract()
         
     def update(self):

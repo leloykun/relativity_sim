@@ -106,19 +106,19 @@ class Menu:
     ####
     
     def sim1(self):
-        env = Environment(self, sim_type='train_notime', light_type='lorrentz')
+        env = Environment(self, sim_type='train_notime', light_type='lorentz')
         env.run()
 
     def sim2(self):
-        env = Environment(self, sim_type='ground_notime', light_type='lorrentz')
+        env = Environment(self, sim_type='ground_notime', light_type='lorentz')
         env.run()
 
     def sim3(self):
-        env = Environment(self, sim_type='train_time', light_type='lorrentz')
+        env = Environment(self, sim_type='train_time', light_type='lorentz')
         env.run()
         
     def sim4(self):
-        env = Environment(self, sim_type='ground_time', light_type='lorrentz')
+        env = Environment(self, sim_type='ground_time', light_type='lorentz')
         env.run()
 
     def sim5(self):

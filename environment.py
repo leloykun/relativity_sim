@@ -10,7 +10,7 @@ class Environment:
     def_train_speed = 0.7
     
     #  def __init__(self, (reference_frame='ground', has_time_dim=False, transformation='galilean'), menu=None, switchable=True):
-    def __init__(self, menu=None, reference_frame='train', has_time_dim=True, transformation='lorrentz', switchable=True):
+    def __init__(self, menu=None, reference_frame='train', has_time_dim=True, transformation='lorentz', switchable=True):
         self.reference_frame = reference_frame
         self.has_time_dim   = has_time_dim
         self.transformation = transformation
@@ -49,7 +49,7 @@ class Environment:
         while True:
             ms_elapsed = clock.tick(100)
             
-            if self.reference_frame == 'ground' and self.has_time_dim == 'notime':
+            if self.reference_frame == 'ground' and self.has_time_dim == False:
                 if self.train.x >= self.screen_X_size:
                     self.train = Train(self)
                     self.left_light = Light(self, 'left')
@@ -93,7 +93,7 @@ class Environment:
                 self.twisted_light_paths.append(((vx, vy), (vx + left_dx, vy + 100)))
                 self.twisted_light_paths.append(((vx, vy), (vx + right_dx, vy + 100)))
                 self.twisted_lengths.append(((vx + left_dx, vy + 100), (vx + right_dx, vy + 100)))
-            elif self.transformation == 'lorrentz':
+            elif self.transformation == 'lorentz':
                 left_dx = -(self.train.w//2)//(self.def_train_speed + Light.c)
                 right_dx = -(self.train.w//2)//(self.def_train_speed - Light.c)
                 vx = self.train.w//2 + right_dx*self.def_train_speed*i
