@@ -9,10 +9,12 @@ class Environment:
     screen_Y_size = 640
     def_train_speed = 0.7
     
-    def __init__(self, menu=None, sim_type='stationary_train', light_type='einstein', switchable=True):
+    #  def __init__(self, (reference_frame='ground', has_time_dim=False, transformation='galilean'), menu=None, switchable=True):
+    def __init__(self, menu=None, reference_frame='train', has_time_dim=True, transformation='lorrentz', switchable=True):
+        self.reference_frame = reference_frame
+        self.has_time_dim   = has_time_dim
+        self.transformation = transformation
         self.menu = menu
-        self.sim_type = sim_type
-        self.light_type = light_type
         self.switchable = switchable
         
         self.switch_count = 0
@@ -22,13 +24,12 @@ class Environment:
         pygame.init()
         self.screen = pygame.display.set_mode((self.screen_X_size, self.screen_Y_size))
         
-        
         self.grid = Grid(self)
         
-        self.train = Train(self, sim_type)
+        self.train = Train(self)
         
-        self.left_light = Light(self.train, self.light_type+'_left')
-        self.right_light = Light(self.train, self.light_type+'_right')
+        self.left_light = Light(self, 'left')
+        self.right_light = Light(self, 'right')
         
         self.normal_light_paths = [] 
         self.normal_lengths = []
@@ -48,11 +49,11 @@ class Environment:
         while True:
             ms_elapsed = clock.tick(100)
             
-            if self.sim_type == 'moving_train':
+            if self.reference_frame == 'ground' and self.has_time_dim == 'notime':
                 if self.train.x >= self.screen_X_size:
-                    self.train = Train(self, 'moving_train')
-                    self.left_light = Light(self.train, self.light_type+'_left')
-                    self.right_light = Light(self.train, self.right_type+'_left')
+                    self.train = Train(self)
+                    self.left_light = Light(self, 'left')
+                    self.right_light = Light(self, 'right')
             elif self.switchable and self.train.y >= self.screen_Y_size:
                 self.change_train()
             
@@ -83,7 +84,7 @@ class Environment:
         
     def calculate_twisted(self):
         for i in range(6):
-            if self.light_type == 'gallilean':
+            if self.transformation == 'galilean':
                 left_dx = (self.train.w//2)*(self.def_train_speed - Light.c)
                 right_dx = (self.train.w//2)*(self.def_train_speed + Light.c)
                 print(left_dx, right_dx)
@@ -92,7 +93,7 @@ class Environment:
                 self.twisted_light_paths.append(((vx, vy), (vx + left_dx, vy + 100)))
                 self.twisted_light_paths.append(((vx, vy), (vx + right_dx, vy + 100)))
                 self.twisted_lengths.append(((vx + left_dx, vy + 100), (vx + right_dx, vy + 100)))
-            elif self.light_type == 'einstein':
+            elif self.transformation == 'lorrentz':
                 left_dx = -(self.train.w//2)//(self.def_train_speed + Light.c)
                 right_dx = -(self.train.w//2)//(self.def_train_speed - Light.c)
                 vx = self.train.w//2 + right_dx*self.def_train_speed*i
@@ -164,7 +165,7 @@ class Environment:
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.pause()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
-                if self.sim_type == 'train_frame' or self.sim_type == 'ground_frame':
+                if self.has_time_dim == True:
                     self.show_transformation()
     
     def update(self):
@@ -187,28 +188,25 @@ class Environment:
         if self.left_light.x <= self.train.x:
             self.lengths.add(((int(self.left_light.x), int(self.left_light.y)), 
                               (int(self.right_light.x), int(self.right_light.y))))
-            self.left_light = Light(self.train, 'dummy')
-        if self.left_light.type == 'dummy' and self.right_light.x >= self.train.x + self.train.w:
-            self.left_light = Light(self.train, self.light_type+'_left')
-            self.right_light = Light(self.train, self.light_type+'_right')
+            self.left_light = Light(self, 'left', is_dummy=True)
+        if self.left_light.is_dummy and self.right_light.x >= self.train.x + self.train.w:
+            self.left_light = Light(self, 'left')
+            self.right_light = Light(self, 'right')
         
-        if self.sim_type == 'train_frame' or self.sim_type == 'ground_frame':
+        if self.has_time_dim == True:
             self.persistent_info()
         
         pygame.display.flip()
     
     def change_train(self):
-        if self.train.type == 'train_frame':
-            self.sim_type = 'ground_frame'
-            self.train = Train(self, 'ground_frame')
-            self.left_light = Light(self.train, self.light_type+'_left')
-            self.right_light = Light(self.train, self.light_type+'_right')
-            self.switch_count += 1
-        elif self.train.type == 'ground_frame':
-            self.sim_type = 'train_frame'
-            self.train = Train(self, 'train_frame')
-            self.left_light = Light(self.train, self.light_type+'_left')
-            self.right_light = Light(self.train, self.light_type+'_right')
+        if self.has_time_dim:
+            if self.reference_frame == 'train':
+                self.reference_frame = 'ground'
+            elif self.reference_frame == 'ground':
+                self.reference_frame = 'train'
+            self.train = Train(self)
+            self.left_light = Light(self, 'left')
+            self.right_light = Light(self, 'right')
             self.switch_count += 1
     
     def persistent_info(self):
