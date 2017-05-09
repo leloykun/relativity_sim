@@ -39,30 +39,20 @@ class Menu:
         
         label1 = thorpy.Draggable.make("Einsteinian")
         label2 = thorpy.Draggable.make("Galilean")
-
+        help_button = thorpy.make_button("Help", func = self.help_window)
         
         self.setProperties(label1)
         self.setProperties(label2)
+        self.setProperties(help_button)
         for button in buttons:
             self.setProp2(button)
             
-        '''
-        #set button properties
-        self.setProp2(simButton1)
-        self.setProp2(simButton2)
-        self.setProp2(simButton3)
-        self.setProp2(simButton4)
-        self.setProp2(simButton5)
-        self.setProp2(simButton6)
-        self.setProp2(simButton7)
-        self.setProp2(simButton8)
-        '''
-
+        
         #separate properties for quitButton
         quitButton = thorpy.make_button("Exit", func=thorpy.functions.quit_menu_func)
         quitButton.set_main_color((255,255,255))
         quitButton.set_font_color_hover((255, 0, 0))
-        quitButton.set_font_size(15)
+        quitButton.set_font_size(23)
         quitButton.set_size((200,50))
         quitButton.set_font('Calibri')
 
@@ -73,17 +63,19 @@ class Menu:
         """
 
         #put buttons in box
-        Elem = [label1] + buttons[0:4] + [label2] + buttons[4:8] + [quitButton]
+        Elem = [label1] + buttons[0:4] + [label2] + buttons[4:8] + [help_button, quitButton]
         central_box = thorpy.Box.make(elements = Elem)
         central_box.fit_children(margins=(20,20))
         central_box.center()
 
+        
         #central_box.add_lift()  #this adds scroll bar
         central_box.set_main_color((220, 220, 220, 180))
 
+
         #make title
         title_element = thorpy.make_text("Relativity Simulation\n", 55, (0,0,0))
-        title_element.set_font('Comic_Sans')
+        title_element.set_font('Calibri')
         title_element.center()
                     
         #set background
@@ -106,7 +98,7 @@ class Menu:
         simButton.set_size((200,50))
         simButton.set_font('Calibri')
 
-    def setProp2(sefl, simButton):
+    def setProp2(self, simButton):
         simButton.set_main_color((255,200,255))
         simButton.set_font_color_hover((255,0,0))
         simButton.set_font_size(15)
@@ -117,7 +109,11 @@ class Menu:
         print(reference_frame, bool(has_time_dim), transformation)
         env = Environment(self, reference_frame=reference_frame, has_time_dim=bool(has_time_dim), transformation=transformation, switchable=True)
         env.run()
-
+    def help_window(self):
+        helptext = """F1 - Show Transformation
+Space Bar - Pause
+Esc - Return to Main Menu"""
+        thorpy.launch_nonblocking_alert(text=helptext, ok_text = "ok")
         
 if __name__ == '__main__':
     '''
