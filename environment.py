@@ -9,19 +9,19 @@ class Environment:
     screen_Y_size = 640
     def_train_speed = 0.7
     
-    def __init__(self, menu, sim_type, light_type, switchable=True):
+    def __init__(self, menu=None, sim_type='stationary_train', light_type='einstein', switchable=True):
         self.menu = menu
         self.sim_type = sim_type
         self.light_type = light_type
         self.switchable = switchable
+        
         self.switch_count = 0
-        self.stopped = False
+        self.paused = False
+        self.showing_transformation = False
     
         pygame.init()
         self.screen = pygame.display.set_mode((self.screen_X_size, self.screen_Y_size))
         
-        self.paused = False
-        self.showing_transformation = False
         
         self.grid = Grid(self)
         
@@ -45,7 +45,7 @@ class Environment:
         
     def run(self):
         clock = pygame.time.Clock()
-        while not self.stopped:
+        while True:
             ms_elapsed = clock.tick(100)
             
             if self.sim_type == 'moving_train':
@@ -159,7 +159,8 @@ class Environment:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.menu.run()
+                if self.menu:
+                    self.menu.run()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.pause()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:

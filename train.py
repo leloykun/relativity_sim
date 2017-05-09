@@ -50,4 +50,6 @@ class Train:
     def contract(self):
         from math import sqrt
         self.w = self.w * sqrt(1-self.dx*self.dx)
+        #  from light import Light
+        #  self.w = self.w * sqrt(1-(self.dx*self.dx)/(Light.c*Light.c))
         
