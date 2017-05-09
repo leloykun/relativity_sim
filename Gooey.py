@@ -106,35 +106,35 @@ class Menu:
     ####
     
     def sim1(self):
-        env = Environment(self, sim_type='stationary_train', light_type='einstein')
+        env = Environment(self, sim_type='train_notime', light_type='lorrentz')
         env.run()
 
     def sim2(self):
-        env = Environment(self, sim_type='moving_train', light_type='einstein')
+        env = Environment(self, sim_type='ground_notime', light_type='lorrentz')
         env.run()
 
     def sim3(self):
-        env = Environment(self, sim_type='train_frame', light_type='einstein')
+        env = Environment(self, sim_type='train_time', light_type='lorrentz')
         env.run()
         
     def sim4(self):
-        env = Environment(self, sim_type='ground_frame', light_type='einstein')
+        env = Environment(self, sim_type='ground_time', light_type='lorrentz')
         env.run()
 
     def sim5(self):
-        env = Environment(self, sim_type='stationary_train', light_type='gallilean')
+        env = Environment(self, sim_type='train_notime', light_type='gallilean')
         env.run()
 
     def sim6(self):
-        env = Environment(self, sim_type='moving_train', light_type='gallilean')
+        env = Environment(self, sim_type='ground_notime', light_type='gallilean')
         env.run()
 
     def sim7(self):
-        env = Environment(self, sim_type='train_frame', light_type='gallilean')
+        env = Environment(self, sim_type='train_time', light_type='gallilean')
         env.run()
         
     def sim8(self):
-        env = Environment(self, sim_type='ground_frame', light_type='gallilean')
+        env = Environment(self, sim_type='ground_time', light_type='gallilean')
         env.run()
         
         

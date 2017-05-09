@@ -6,33 +6,33 @@ class Train:
     w = 200
     h = 20
     
-    def __init__(self, env, type):
+    def __init__(self, env):
         self.env = env
-        self.type = type
         
-        if self.type == 'train_frame':
-            self.x = (self.env.screen_X_size - self.w) // 2
+        if self.env.has_time_dim:
             self.y = 0
-            self.dx = 0
             self.dy = 1
-        elif self.type == 'ground_frame':
+        elif self.env.has_time_dim:
+            self.y = (self.env.screen_Y_size - self.h) // 2
+            self.dy = 0
+        else:
+            print("ERROR: has_time_dim not initialized")
+        
+        if self.env.reference_frame == 'train':
+            self.x = (self.env.screen_X_size - self.w) // 2
+            self.dx = 0
+        elif self.env.reference_frame == 'ground':
             self.x = 0
-            self.y = 0
             self.dx = self.env.def_train_speed
-            self.dy = 1
-        elif self.type == 'stationary_train':
-            self.x = (self.env.screen_X_size - self.w) // 2
-            self.y = (self.env.screen_Y_size - self.h) // 2
-            self.dx = 0
-            self.dy = 0
-        elif self.type == 'moving_train':
+        else:
+            print("ERROR: reference_frame not initialized")
+        
+        #  special case:
+        if self.env.reference_frame == 'ground' and self.env.has_time_dim == False:
             self.x = -200
-            self.y = (self.env.screen_Y_size - self.h) // 2
-            self.dx = self.env.def_train_speed
-            self.dy = 0
-            if self.env.light_type == 'einstein':
+            if self.env.transformation == 'lorrentz':
                 self.contract()
-            
+        
     def update(self):
         self.move()
         self.display()
@@ -42,10 +42,13 @@ class Train:
         self.y += self.dy
     
     def display(self):
+        #  main body
         rec = (self.x, self.y, self.w, self.h)
-        cir = (int(self.x+self.w//2), int(self.y+self.h//2))
         pygame.draw.rect(self.env.screen, self.main_color, rec, 0)
+        #  photon gun
+        cir = (int(self.x+self.w//2), int(self.y+self.h//2))
         pygame.draw.circle(self.env.screen, self.gun_color, cir, 10, 0)
+        #  receivers?
         
     def contract(self):
         from math import sqrt

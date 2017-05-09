@@ -7,17 +7,17 @@ class Grid:
 
     def __init__(self, env):
         self.env = env
-        if self.env.sim_type == 'train_frame' or self.env.sim_type == 'ground_frame':
+        if self.env.has_time_dim:
             self.x_offset = 20
             self.y_offset = 10
             self.spacing = 50
-        elif self.env.sim_type == 'stationary_train' or self.env.sim_type == 'moving_train':
+        else:
             self.x_offset = 0
             self.y_offset = 0
             self.spacing = 80
             
     def update(self):
-        if (self.env.sim_type == 'stationary_train' or self.env.sim_type == 'train_frame') and not self.env.showing_transformation:
+        if self.env.reference_frame == 'train' and not self.env.showing_transformation:
             self.x_offset -= self.env.def_train_speed
         self.display()
         
